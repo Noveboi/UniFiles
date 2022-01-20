@@ -29,7 +29,7 @@ documents_dir = "https://gunet2.cs.unipi.gr/modules/document/document.php?course
 os_system = platform.system()
 #create default directories
 if os_system == 'Linux':
-    local_dir = f"/home/{USER}/Documents/uni_files/"
+    local_dir = f"/home/{USER}/Documents/uni_files"
 else:
     local_dir = f"{USER}/Documents/uni_files"
 
@@ -40,18 +40,21 @@ def sanitizeText(text):
     text.replace("\n", "")
     return text.strip()
 
+def isZipFile(file):
+    if '.' not in file: return True
+    return False
+
 def downloadFile(file, download_url, rq, dir):
     substr = download_url[-10:len(download_url)] #-10 index is random, just big enough to cover the extensions
 
-    if '.' not in substr:
+    if isZipFile(substr):
         with open(f"{dir}/{file}.zip", "wb") as f:
             f.write(rq.content) 
-        print(f"{dir}/{file}.zip downloaded")
+            print(f"{dir}/{file}.zip downloaded")
     else:
-        # extension = substr[substr.index('.'):len(substr)]
         with open(f"{dir}/{file}", "wb") as f:
             f.write(rq.content)
-        print(f"{dir}/{file}")
+            print(f"{dir}/{file} downloaded")
 
 #a generator which returns each and every download link of a course
 def getDownloadLinks(html_file):
@@ -79,28 +82,24 @@ def getDownloadLinks(html_file):
 
 def modifyDirs(local_subdir, file_name, target_url, rq):
     try:
-        if os.path.exists(local_subdir):
-            downloadFile(file_name, target_url, rq, local_subdir)
-        else:
-            os.mkdir(local_subdir)
-            downloadFile(file_name, target_url, rq, local_subdir)
+        if not os.path.exists(local_subdir): os.mkdir(local_subdir)
+        
+        downloadFile(file_name, target_url, rq, local_subdir)
     except Exception as e3:
             print(f"problem with directories: {e3}")
 
 def unzipAndOrganize(file_name, local_subdir):
-    if '.' in file_name:
-        extract_path = os.path.join(local_subdir, file_name[0:file_name.index('.')])
-        #e.g - hello.pdf becomes hello
+    try:
+        extract_path = os.path.join(local_subdir, file_name)
 
-    zip_path = os.path.join(local_subdir, file_name)
+        zip_path = os.path.join(local_subdir, f"{file_name}.zip")
 
-    if os.path.exists(extract_path):
+        if not os.path.exists(extract_path): os.mkdir(extract_path)
+
         with zipfile.ZipFile(zip_path, 'r') as zf:
             zf.extractall(extract_path)
-    else:
-        os.mkdir(extract_path)
-        with zipfile.ZipFile(zip_path, 'r') as zf:
-            zf.extractall(extract_path)
+    except Exception as e:
+        print(f"unzipping process error: {e}")
 
 def downloadSpecificCourse(courseKey):
 
@@ -119,6 +118,7 @@ def downloadSpecificCourse(courseKey):
         for link in getDownloadLinks("rawweb.html"):
             i += 1
             target_url = f"{home_dir}{link}"
+            substr = target_url[-8:len(target_url)]
             try:
                 d_r = ses.get(target_url, verify=SSL_CERT) #download request
 
@@ -126,14 +126,14 @@ def downloadSpecificCourse(courseKey):
                 modifyDirs(local_subdir, file_names[i], target_url, d_r)
 
                 #extract files from every .zip and put them in folders
-                unzipAndOrganize(file_names[i], local_subdir)
+                if isZipFile(substr):
+                    unzipAndOrganize(file_names[i], local_subdir)
 
             except Exception as e2: print(f"download request went wrong: {e2}")
     except Exception as e: print(f"connection problem: {e}")
 
 #main program
 if __name__ == "__main__":
-
     #ask for custom directory, if input=blank use default path
     usr_dir = input("Copy paste a path for the files to be stored here (leave empty for default): ")
     if usr_dir != '':
@@ -141,12 +141,14 @@ if __name__ == "__main__":
             if os.path.exists(usr_dir): break
             else:
                 usr_dir = input("Please enter an existing path: ")
-        local_dir = os.path.join(usr_dir, 'uni_files')
+
+    if not os.path.exists(local_dir): os.mkdir(local_dir)
+
     
-    #start a new session
+    #start a new session (ends when program terminates)
     ses = requests.Session()
 
     downloadSpecificCourse('anal1')
     
     os.remove("rawweb.html")
-    print(f"The following files are to be downloaded: {file_names}")
+    print(f"The following files have been downloaded: {file_names}")
