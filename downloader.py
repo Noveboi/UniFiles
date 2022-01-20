@@ -19,7 +19,7 @@ yearA = {
 }
 
 USER = os.environ['USER']
-SSL_CERT = "gunet2-cs-unipi-gr-chain.pem"
+SSL_CERT = "cert/gunet2-cs-unipi-gr-chain.pem" #certificate for SSL handshake 
 
 home_dir = "https://gunet2.cs.unipi.gr"
 documents_dir = "https://gunet2.cs.unipi.gr/modules/document/document.php?course="
@@ -100,7 +100,7 @@ def downloadSpecificCourse(courseKey):
         #establish connection to website
         r = ses.get(targetdocs_url, verify=SSL_CERT)
         
-        #write to a dummy html file the websites contents
+        #write to a temp dummy html file the websites contents
         with open("rawweb.html", "w") as f: 
             f.write(BeautifulSoup(r.text, 'lxml').prettify())
         
@@ -117,7 +117,7 @@ def downloadSpecificCourse(courseKey):
 
                 #extract files from every .zip and put them in folders
                 unzipAndOrganize(file_names[i], local_subdir)
-                
+
             except Exception as e2: print(f"download request went wrong: {e2}")
     except Exception as e: print(f"connection problem: {e}")
 
@@ -127,4 +127,6 @@ if __name__ == "__main__":
     ses = requests.Session()
 
     downloadSpecificCourse('anal1')
+    
+    os.remove("rawweb.html")
     print(f"The following files are to be downloaded: {file_names}")
