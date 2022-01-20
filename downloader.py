@@ -1,10 +1,11 @@
 import platform
-from threading import local
 import requests
 import os
 from bs4 import BeautifulSoup
 import zipfile
 from platform import system
+import json
+from getpass import getuser
 
 yearA = {
     'anal1': "TMA117",
@@ -20,19 +21,26 @@ yearA = {
     'wtech': "TMA110"
 }
 
-USER = os.environ['USER']
+USER = getuser()
 SSL_CERT = "cert/gunet2-cs-unipi-gr-chain.pem" #certificate for SSL handshake 
+ENC = "utf8"
 
+c_path = False
 home_dir = "https://gunet2.cs.unipi.gr"
 documents_dir = "https://gunet2.cs.unipi.gr/modules/document/document.php?course="
 
 os_system = platform.system()
-#create default directories
-if os_system == 'Linux':
-    local_dir = f"/home/{USER}/Documents/uni_files"
-else:
-    local_dir = f"{USER}/Documents/uni_files"
-
+#create default directories 
+with open('config.json', 'r', encoding=ENC) as f:
+    d = json.load(f)
+    if d['custom_path'] == '':
+        if os_system == 'Linux':
+            local_dir = f"/home/{USER}/Documents/uni_files"  
+        else:
+            local_dir = f"C:/Users/{USER}/Documents/uni_files"
+    else: 
+        local_dir = d['custom_path'] #no path check since it's already done in __main__
+        c_path = True
 
 file_names = []
 
@@ -49,16 +57,18 @@ def downloadFile(file, download_url, rq, dir):
 
     if isZipFile(substr):
         with open(f"{dir}/{file}.zip", "wb") as f:
+            print(f"Downloading {dir}/{file}.zip...")
             f.write(rq.content) 
             print(f"{dir}/{file}.zip downloaded")
     else:
         with open(f"{dir}/{file}", "wb") as f:
+            print(f"Downloading {dir}/{file}...")
             f.write(rq.content)
             print(f"{dir}/{file} downloaded")
 
 #a generator which returns each and every download link of a course
 def getDownloadLinks(html_file):
-    with open(html_file, "r") as f:
+    with open(html_file, "r", encoding=ENC) as f:
         html_content = f.read()
         soup = BeautifulSoup(html_content, 'lxml')
         table = soup.find('table', class_='tbl_alt')
@@ -98,6 +108,7 @@ def unzipAndOrganize(file_name, local_subdir):
 
         with zipfile.ZipFile(zip_path, 'r') as zf:
             zf.extractall(extract_path)
+        os.remove(zip_path)
     except Exception as e:
         print(f"unzipping process error: {e}")
 
@@ -110,7 +121,7 @@ def downloadSpecificCourse(courseKey):
         r = ses.get(targetdocs_url, verify=SSL_CERT)
         
         #write to a temp dummy html file the websites contents
-        with open("rawweb.html", "w") as f: 
+        with open("rawweb.html", "w", encoding=ENC) as f: 
             f.write(BeautifulSoup(r.text, 'lxml').prettify())
         
         i = -1
@@ -134,21 +145,28 @@ def downloadSpecificCourse(courseKey):
 
 #main program
 if __name__ == "__main__":
-    #ask for custom directory, if input=blank use default path
-    usr_dir = input("Copy paste a path for the files to be stored here (leave empty for default): ")
-    if usr_dir != '':
-        while True:
-            if os.path.exists(usr_dir): break
-            else:
-                usr_dir = input("Please enter an existing path: ")
+    #ask for custom directory, if input=blank use default path  
+    if not c_path:
+        usr_dir = input("Copy paste a path for the files to be stored here (leave empty for default): ")
+        if usr_dir != '':
+            while True:
+                if os.path.exists(usr_dir): break
+                else:
+                    usr_dir = input("Please enter an existing path: ")
+            local_dir = os.path.join(usr_dir, 'uni_files' )
 
-    if not os.path.exists(local_dir): os.mkdir(local_dir)
+        if not os.path.exists(local_dir): os.mkdir(local_dir)
 
+    
+        storeDir = input("Would you like to use this directory in the future? (y/n)")
+        if storeDir.lower() == 'y':
+            with open("conf.txt", 'w', encoding=ENC) as f:
+                f.write(local_dir)     
     
     #start a new session (ends when program terminates)
     ses = requests.Session()
 
-    downloadSpecificCourse('anal1')
+    downloadSpecificCourse('cmath')
     
     os.remove("rawweb.html")
     print(f"The following files have been downloaded: {file_names}")
