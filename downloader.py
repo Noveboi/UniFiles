@@ -1,8 +1,10 @@
+import platform
 from threading import local
 import requests
 import os
 from bs4 import BeautifulSoup
 import zipfile
+from platform import system
 
 yearA = {
     'anal1': "TMA117",
@@ -23,7 +25,15 @@ SSL_CERT = "cert/gunet2-cs-unipi-gr-chain.pem" #certificate for SSL handshake
 
 home_dir = "https://gunet2.cs.unipi.gr"
 documents_dir = "https://gunet2.cs.unipi.gr/modules/document/document.php?course="
-local_dir = f"/home/{USER}/Desktop/test_flder/" #for linux
+
+os_system = platform.system()
+#create default directories
+if os_system == 'Linux':
+    local_dir = f"/home/{USER}/Documents/uni_files/"
+else:
+    local_dir = f"{USER}/Documents/uni_files"
+
+
 file_names = []
 
 def sanitizeText(text):
@@ -123,6 +133,16 @@ def downloadSpecificCourse(courseKey):
 
 #main program
 if __name__ == "__main__":
+
+    #ask for custom directory, if input=blank use default path
+    usr_dir = input("Copy paste a path for the files to be stored here (leave empty for default): ")
+    if usr_dir != '':
+        while True:
+            if os.path.exists(usr_dir): break
+            else:
+                usr_dir = input("Please enter an existing path: ")
+        local_dir = os.path.join(usr_dir, 'uni_files')
+    
     #start a new session
     ses = requests.Session()
 
