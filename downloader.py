@@ -143,9 +143,7 @@ def downloadSpecificCourse(courseKey):
             except Exception as e2: print(f"download request went wrong: {e2}")
     except Exception as e: print(f"connection problem: {e}")
 
-#main program
-if __name__ == "__main__":
-    #ask for custom directory, if input=blank use default path  
+def defineDownloadPath(local_dir):
     if not c_path:
         usr_dir = input("Copy paste a path for the files to be stored here (leave empty for default): ")
         if usr_dir != '':
@@ -153,15 +151,33 @@ if __name__ == "__main__":
                 if os.path.exists(usr_dir): break
                 else:
                     usr_dir = input("Please enter an existing path: ")
-            local_dir = os.path.join(usr_dir, 'uni_files' )
-
+            local_dir = os.path.join(usr_dir, 'uni_files' )    
+        
         if not os.path.exists(local_dir): os.mkdir(local_dir)
-
-    
         storeDir = input("Would you like to use this directory in the future? (y/n)")
         if storeDir.lower() == 'y':
-            with open("conf.txt", 'w', encoding=ENC) as f:
-                f.write(local_dir)     
+            c_dir = {"custom_path": local_dir}
+            json_obj = json.dumps(c_dir)
+            with open("config.json", 'w', encoding=ENC) as f:
+                f.write(json_obj)
+            return local_dir
+        return local_dir
+    else:
+        if not os.path.exists(local_dir): 
+            usr_dir = input("Your current custom directory doesn't exist, please enter a valid one: ")
+            while True:
+                if os.path.exists(usr_dir): break
+                else:
+                    usr_dir = input("Please enter an existing path: ")
+            local_dir = os.path.join(usr_dir, 'uni_files')
+        return local_dir
+
+
+
+#main program
+if __name__ == "__main__":
+    #ask for custom directory, if input=blank use default path  
+    local_dir = defineDownloadPath(local_dir)
     
     #start a new session (ends when program terminates)
     ses = requests.Session()
