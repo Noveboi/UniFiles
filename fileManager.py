@@ -23,24 +23,24 @@ with open('config.json', 'r', encoding='utf8') as f:
         c_path = True
 
 def isFolder(file):
-    if '.' not in file:
+    if '.' not in file[-8:len(file)]:
         return True
     return False
 
 def dlAndWriteToFile(file, download_url, rq, dir):
-    # -10 index is random, just big enough to cover the extensions
-    substr = download_url[-10:len(download_url)]
-
-    if isFolder(substr):
+    if isFolder(download_url):
         print(f"Downloading {file}.zip...")
         with open(f"{dir}/{file}.zip", "wb") as f:
             f.write(rq.content)
             print(f"{file}.zip downloaded\n")
     else:
-        print(f"Downloading {file}...")
-        with open(f"{dir}/{file}", "wb") as f:
-            f.write(rq.content)
-            print(f"{file} downloaded\n")
+        if not os.path.exists(f"{dir}/{file}"):
+            print(f"Downloading {file}...")
+            with open(f"{dir}/{file}", "wb") as f:
+                f.write(rq.content)
+                print(f"{file} downloaded\n")
+        else:
+            print(f"File {file} is already downloaded")
 
 def modifyDirs(local_subdir, file_name, target_url, rq):
     try:

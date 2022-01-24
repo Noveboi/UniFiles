@@ -28,7 +28,6 @@ documents_dir = "https://gunet2.cs.unipi.gr/modules/document/document.php?course
 def downloadFile(file_path,file_name,courseKey):
     local_subdir = os.path.join(local_dir, f"{courseKey.title()}")
     download_link = f"{home_dir}{file_path}" 
-    substr = download_link[-8:len(download_link)]
     try:
         d_r = session.get(download_link, verify=SSL_CERT)  # download request
 
@@ -36,9 +35,8 @@ def downloadFile(file_path,file_name,courseKey):
         modifyDirs(local_subdir, file_name, download_link, d_r)
 
         # extract files from every .zip and put them in folders
-        if isFolder(substr):
+        if isFolder(download_link):
             unzipAndOrganize(file_name, local_subdir)
-
     except Exception as e2:
         print(f"download request went wrong: {e2}")
 
@@ -61,7 +59,7 @@ def downloadSpecificCourse(courseKey):
 session = requests.Session()
 
 # main program
-if __name__ == "__main__":
+def runDownloader(local_dir):
     # ask for custom directory, if input=blank use default path
     local_dir = defineDownloadPath(local_dir)
     

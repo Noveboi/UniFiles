@@ -22,10 +22,12 @@ def getTableData(html_file):
             td_a = second_td.find('a')
 
             file_name = sanitizeText(td_a.text)
+            file_link = td_a['href']
 
             download_link = last_td.find('a')
             yield {
                 'file': file_name,
                 'dl': download_link['href'],
-                'date': tds[-2].text
+                'date': tds[-2].text,
+                'link': file_link
             }
