@@ -1,8 +1,9 @@
+from time import strftime
 import requests
 import datetime
 import os
 import json
-from downloader import SSL_CERT, documents_dir, yearA, home_dir, downloadFile, session
+from downloader import SSL_CERT, documents_dir, yearA, home_dir, downloadFile, session #remove session
 from scraper import getTableData
 from fileManager import isFolder
 
@@ -15,33 +16,39 @@ TIME_DISPLAY = '%Y-%m-%d %H:%M:%S'
 def getlastCheckDate():
     with open("config.json", 'r') as f:
         data = json.load(f)
-    return datetime.date(datetime.datetime.strptime(data['last_check'], '%Y-%m-%d'))
+    return datetime.datetime.strptime(data['last_check'], TIME_DISPLAY)
 
 #convert DD-MM-YYYY to YYYY-MM-DD
 def formatDate(dateString):
     #gunet's formatting: DD-MM-YYYY
-    if dateString[0] == '0':
-        day = int(dateString[1])
-    else:
-        day = int(dateString[0:2])
+    # if dateString[0] == '0':
+    #     day = int(dateString[1])
+    # else:
+    #     day = int(dateString[0:2])
 
-    if dateString[3] == '0':
-        month = int(dateString[4])
-    else:
-        month = int(dateString[3:5])
+    # if dateString[3] == '0':
+    #     month = int(dateString[4])
+    # else:
+    #     month = int(dateString[3:5])
 
-    year = int(dateString[6:len(dateString)])
-    return datetime.date(year, month, day)
+    # year = int(dateString[6:10])
+    # hms = dateString[10:len(dateString)].strip()
+    unformatted =  datetime.datetime.strptime(dateString, '%d-%m-%Y %H:%M:%S')
+    return datetime.datetime.strptime(datetime.datetime.strftime(unformatted, TIME_DISPLAY), TIME_DISPLAY)
+
 
 def updateDate(): #epic rhyme
-    now = {"last_check": datetime.datetime.now().date }#YYYY-MM-DD
-    jsonData = json.dumps(now)
-    with open("config.json", 'w') as f:
-        f.write(jsonData)
+    now = {"last_check": datetime.datetime.strftime(datetime.datetime.now(), TIME_DISPLAY) }
+    jsonData = now
+    with open("config.json", 'r') as f:
+        data = json.load(f)
+    data.update(jsonData)
+    with open("config.json", 'w') as jf:
+        json.dump(data, jf)
 
 def iterateAndDownload(last_check, course, url):
     print(f"\n----{url}----\n")
-    
+
     r = session.get(url, verify=SSL_CERT)
     with open("temp.html", 'w') as html:
         html.write(r.text)
@@ -55,29 +62,27 @@ def iterateAndDownload(last_check, course, url):
                     print(f"Update found for {data['file']}")
                     downloadFile(data['dl'], data['file'], course)
 
-def scanCoursesForUpdates():
+def scanCoursesForUpdates(specificCourse = None):
     last_check = getlastCheckDate()
-    updateDate()
+    # updateDate()
 
-    for course in yearA:
-        cId = yearA[course]
+    if specificCourse == None:
+        for course in yearA:
+            cId = yearA[course]
+            initial_url = f"{documents_dir}{cId}"
+            print(f"Scanning {cId} for updates...")
+            iterateAndDownload(last_check, course, initial_url)
+            print(f"\n{cId} is now up-to-date!")
+    else:
+        cId = yearA[specificCourse]
         initial_url = f"{documents_dir}{cId}"
         print(f"Scanning {cId} for updates...")
-            
-        iterateAndDownload(last_check, course, initial_url)
+        iterateAndDownload(last_check, specificCourse, initial_url)
+        print(f"\n{cId} is now up-to-date!")
 
-cId = yearA['anal1']
-last_check = datetime.date(2021,1,1)
-url = f"{documents_dir}{cId}"
-print(f"Scanning {cId} for updates...")
-r = session.get(url, verify=SSL_CERT)
-with open("temp.html", 'w') as html:
-    html.write(r.text)
-
-with open('downloads.json', 'w') as openFile:
-    pass
+    print("Finished")
+    os.remove('temp.html')
     
-iterateAndDownload(last_check, 'anal1', url)
 
-os.remove('downloads.json')
-os.remove('temp.html')
+
+scanCoursesForUpdates('anal1')

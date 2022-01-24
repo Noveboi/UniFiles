@@ -34,13 +34,10 @@ def dlAndWriteToFile(file, download_url, rq, dir):
             f.write(rq.content)
             print(f"{file}.zip downloaded\n")
     else:
-        if not os.path.exists(f"{dir}/{file}"):
-            print(f"Downloading {file}...")
-            with open(f"{dir}/{file}", "wb") as f:
-                f.write(rq.content)
-                print(f"{file} downloaded\n")
-        else:
-            print(f"File {file} is already downloaded")
+        print(f"Downloading {file}...")
+        with open(f"{dir}/{file}", "wb") as f:
+            f.write(rq.content)
+            print(f"{file} downloaded\n")
 
 def modifyDirs(local_subdir, file_name, target_url, rq):
     try:

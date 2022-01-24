@@ -28,6 +28,6 @@ def getTableData(html_file):
             yield {
                 'file': file_name,
                 'dl': download_link['href'],
-                'date': tds[-2].text,
+                'date': tds[-2]['title'],
                 'link': file_link
             }
