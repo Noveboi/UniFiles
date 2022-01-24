@@ -1,0 +1,78 @@
+{
+    "year_a": 
+    {
+        "anal1": "TMA117", 
+        "anal2": "TMA120",
+        "oop": "TMA103",
+        "cpp": "TMA105",
+        "arch": "TMA106",
+        "disc": "TMA113",
+        "data": "TMA114",
+        "appl": "TMA119",
+        "logic": "TMA108",
+        "cmath": "TMA123",
+        "wtech": "TMA110",
+        "pyth": "TMA111"
+    },
+    "year_b":
+    {
+        "algo": "TMB101",
+        "ooad": "TMB121",
+        "mprog": "TME132",
+        "past": "TMB125",
+        "aogt": "TMC114",
+        "passg": "TMB110",
+        "passd": "TMB124",
+        "cnet": "TMB115",
+        "cstat": "TMB107",
+        "stat": "TMB108",
+        "acomb": "TMB128",
+        "ict": "TMB105",
+        "netp": "TMB112"
+    },
+    "year_c":
+    {
+        "acaw": "TMC136",
+        "hci": "TMC101",
+        "danal": "TMC123",
+        "revp": "TMA100",
+        "nlp": "TMC113",
+        "scic": "TMC129",
+        "gta": "TMC137",
+        "compt": "TMC125",
+        "pil": "TMC105",
+        "queue": "TMC107",
+        "comsy": "TMC121",
+        "aarch": "TMC103",
+        "dms": "TMC110",
+        "dssys": "TMC109",
+        "gssys": "TMC120",
+        "csd": "TMC112",
+        "ai": "TMB109",
+        "sofen": "TMC111"
+    },
+    "year_d":
+    {
+        "irwww": "TMD105",
+        "ir": "TMD107",
+        "csr": "TMD106",
+        "iss": "TMD108",
+        "gis": "TMD109",
+        "km": "TMD124",
+        "itpm": "TMD129",
+        "vr": "TMD117",
+        "edos": "TMD101",
+        "dmcs": "TMD131",
+        "dcs": "TMD112",
+        "dai": "TMD113",
+        "oside": "TMD126",
+        "webit": "TMD111",
+        "mcs": "TMA107",
+        "pt": "TMD132",
+        "ctse": "TMD100",
+        "erp": "TMA109",
+        "qas": "TMD115",
+        "cg": "TMD136",
+        "dlib": "TMD122"
+    }
+}

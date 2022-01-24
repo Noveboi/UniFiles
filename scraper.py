@@ -1,4 +1,7 @@
 from bs4 import BeautifulSoup
+from os import remove
+
+docDir = "https://gunet2.cs.unipi.gr/modules/document/document.php?course="
 
 def sanitizeText(text):
     text.replace("\n", "")
@@ -31,3 +34,19 @@ def getTableData(html_file):
                 'date': tds[-2]['title'],
                 'link': file_link
             }
+
+def getCourseTitle(courseId, session):
+
+    courseUrl = f"{docDir}{courseId}"
+    r = session.get(courseUrl, verify="cert/gunet2-cs-unipi-gr-chain.pem")
+    with open("dump.html", 'w') as html:
+        html.write(r.text)
+    
+    with open("dump.html", 'r') as html:
+        content = html.read()
+        soup = BeautifulSoup(content, 'lxml')
+        lesson_div = soup.find('div', class_="lesson")
+        course_title = lesson_div.findChild('a')
+
+    remove("dump.html")
+    return course_title.text

@@ -1,32 +1,20 @@
-import requests
 import os
 from bs4 import BeautifulSoup
-from scraper import getTableData
+from json import load
+from scraper import getTableData, getCourseTitle
 from fileManager import isFolder, modifyDirs, unzipAndOrganize, defineDownloadPath, local_dir
-
-yearA = {
-    'anal1': "TMA117",
-    'anal2': "TMA120",
-    'oop': "TMA103",
-    'cpp': "TMA105",
-    'arch': "TMA106",
-    'disc': "TMA113",
-    'data': "TMA114",
-    'appl': "TMA119",
-    'logic': "TMA108",
-    'cmath': "TMA123",
-    'wtech': "TMA110",
-    'pyth': "TMA111"
-}
+from checker import findYear
 
 SSL_CERT = "cert/gunet2-cs-unipi-gr-chain.pem"  # certificate for SSL handshake
 ENC = "utf8"
 
 home_dir = "https://gunet2.cs.unipi.gr"
 documents_dir = "https://gunet2.cs.unipi.gr/modules/document/document.php?course="
+with open("courses.json", 'r') as jf:
+    courses = load(jf)
 
-def downloadFile(file_path,file_name,courseKey):
-    local_subdir = os.path.join(local_dir, f"{courseKey.title()}")
+def downloadFile(file_path,file_name,courseId,session):
+    local_subdir = os.path.join(local_dir, f"{getCourseTitle(courseId, session)}")
     download_link = f"{home_dir}{file_path}" 
     try:
         d_r = session.get(download_link, verify=SSL_CERT)  # download request
@@ -40,8 +28,8 @@ def downloadFile(file_path,file_name,courseKey):
     except Exception as e2:
         print(f"download request went wrong: {e2}")
 
-def downloadSpecificCourse(courseKey):
-    targetdocs_url = f"{documents_dir}{yearA[courseKey]}"
+def downloadSpecificCourse(courseKey,session, yearCourses):
+    targetdocs_url = f"{documents_dir}{yearCourses[courseKey]}"
     try:
         # establish connection to website
         r = session.get(targetdocs_url, verify=SSL_CERT)
@@ -52,17 +40,15 @@ def downloadSpecificCourse(courseKey):
 
         # assign appropriate link for GET download request
         for data in getTableData("rawweb.html"):
-            downloadFile(data['dl'], data['file'], courseKey)
+            downloadFile(data['dl'], data['file'], yearCourses[courseKey], session)
     except Exception as e:
         print(f"connection problem: {e}")
 
-session = requests.Session()
-
 # main program
-def runDownloader(local_dir):
-    # ask for custom directory, if input=blank use default path
+def runDownloader(local_dir, session, courseKey):
     local_dir = defineDownloadPath(local_dir)
     
-    downloadSpecificCourse('anal1')
+    downloadSpecificCourse(courseKey, session, courses[findYear(courses, courseKey)])
 
+    print("Downloads complete!\n")
     os.remove("rawweb.html")

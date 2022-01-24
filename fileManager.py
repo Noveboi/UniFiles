@@ -48,7 +48,6 @@ def modifyDirs(local_subdir, file_name, target_url, rq):
     except Exception as e3:
         print(f"problem with directories: {e3}")
 
-
 def unzipAndOrganize(file_name, local_subdir):
     try:
         extract_path = os.path.join(local_subdir, file_name)
