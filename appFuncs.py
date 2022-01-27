@@ -26,7 +26,7 @@ def duSpecific(session):
                     break
         break
     du(session, courseChoice, courses[year][courseChoice])
-    print("-----------------------------------")
+    print("-----------------------------------\n")
 
 def duAll(session):
     while True:
@@ -46,16 +46,22 @@ def duAll(session):
         for course in yearCourses:
             du(session, course, yearCourses[course])
 
-    print("----------------------")
+    print("----------------------\n")
 
-def listCourses(session):
-    print("Available courses (Course Name - Course Key):\n ")
+def listCourses(session, year = None):
+    print("Available courses (Course Name - Course Key):")
     with open('courses.json', 'r') as jf:
         courses = load(jf)
+    
     years = ["year_a", "year_b", "year_c", "year_d"]
-    for yearNum, year in enumerate(years):
-        print(f"\n----Year {yearNum + 1}---")
-        yearCourse = courses[year]
-        for course in yearCourse:
-            print(f"{getCourseTitle(yearCourse[course], session)} - {course}")
-    print("-----------------------------------")
+    if year != None:
+        print(f"\n----Year {year}---")
+        for course in courses[years[year-1]]:
+            print(f"{getCourseTitle(courses[years[year-1]][course], session)} - {course}")
+    else:
+        for yearNum, year in enumerate(years):
+            print(f"\n----Year {yearNum + 1}---")
+            yearCourse = courses[year]
+            for course in yearCourse:
+                print(f"{getCourseTitle(yearCourse[course], session)} - {course}")
+    print("-----------------------------------\n")
