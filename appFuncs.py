@@ -10,7 +10,7 @@ def du(session, courseKey, courseId):
         downloader.runDownloader(local_dir, session, courseKey)
     else:
         print(f"Checking for updates on {getCourseTitle(courseId, session)}\n")
-        updater.scanCoursesForUpdates(session, courseId, specificCourse=courseKey)
+        updater.scanCoursesForUpdates(session, courseId, specificCourse=courseKey)  
 
 def duSpecific(session):
     with open('courses.json', 'r') as jf:

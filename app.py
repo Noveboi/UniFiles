@@ -7,7 +7,7 @@ if __name__ == "__main__":
 
     with requests.Session() as session:
         print("Hello! \n---------")
-        if autoEnabled: determineAutoUpdate()
+        if autoEnabled: determineAutoUpdate(session)
         
         while True:
             print("F - View available courses")

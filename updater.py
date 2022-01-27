@@ -4,7 +4,7 @@ import json
 from downloader import SSL_CERT, documents_dir, courses, home_dir, downloadFile
 from scraper import getTableData
 from fileManager import isFolder
-from checker import findYear
+from checker import needsDownload
 
 TIME_DISPLAY = '%Y-%m-%d %H:%M:%S'
 
@@ -18,14 +18,6 @@ def getlastCheckDate():
     with open("config.json", 'r') as f:
         data = json.load(f)
     return datetime.datetime.strptime(data['last_check'], TIME_DISPLAY)
-
-def determineAutoUpdate():
-    lastCheck = getlastCheckDate()
-    now = datetime.datetime.now()
-    time_passed = abs((now - lastCheck).days)
-    if time_passed >= 1:
-        print(f"Some time has passed since the last update, auto-updating now!")
-    else: print(time_passed)
 
 #convert DD-MM-YYYY to YYYY-MM-DD
 def formatDate(dateString):
@@ -42,7 +34,7 @@ def updateDate(): #epic rhyme
     with open("config.json", 'w') as jf:
         json.dump(data, jf)
 
-def iterateAndDownload(last_check, course, url, session):
+def iterateAndDownload(last_check, courseId, url, session):
     print(f"\nSearching in {url}...")
 
     r = session.get(url, verify=SSL_CERT)
@@ -52,23 +44,26 @@ def iterateAndDownload(last_check, course, url, session):
     for data in getTableData("temp.html"): #iterate through each file in the table of contents 
         if isFolder(data['dl']):
             redir = f"{home_dir}{data['link']}"
-            iterateAndDownload(last_check, course, redir, session) #go one level deeper  
+            iterateAndDownload(last_check, courseId, redir, session) #go one level deeper  
         else:
             if formatDate(data['date']) >= last_check:
                     print(f"Update found for {data['file']}")
-                    downloadFile(data['dl'], data['file'], course, session)
+                    downloadFile(data['dl'], data['file'], courseId, session)
 
 def scanCoursesForUpdates(session, courseId, specificCourse = None):
     last_check = getlastCheckDate()
     updateDate()
 
     if specificCourse == None:
-        for course in courses:
-            cId = courseId
-            initial_url = f"{documents_dir}{cId}"
-            print(f"Scanning {cId} for updates...")
-            iterateAndDownload(last_check, course, initial_url, session)
-            print(f"\n{cId} is now up-to-date!")
+        years = ["year_a", "year_b", "year_c", "year_d"]
+        for year in years:
+            for course in courses[year]:
+                if not needsDownload(course, session):
+                    cId = courses[year][course]
+                    initial_url = f"{documents_dir}{cId}"
+                    print(f"----\nScanning {cId} for updates...\n----")
+                    iterateAndDownload(last_check, courses[year][course], initial_url, session)
+                    print(f"\n{cId} is now up-to-date!\n")
     else:
         cId = courseId
         initial_url = f"{documents_dir}{cId}"
@@ -78,3 +73,12 @@ def scanCoursesForUpdates(session, courseId, specificCourse = None):
 
     print("Finished")
     os.remove('temp.html')
+
+def determineAutoUpdate(session):
+    lastCheck = getlastCheckDate()
+    now = datetime.datetime.now()
+    time_passed = abs((now - lastCheck).days)
+    if time_passed >= 1:
+        print(f"Some time has passed since the last update, auto-updating now!")
+        scanCoursesForUpdates(session, '')
+    else: print(time_passed)
