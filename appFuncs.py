@@ -10,20 +10,22 @@ def du(session, courseKey, courseId):
         downloader.runDownloader(local_dir, session, courseKey)
     else:
         print(f"Checking for updates on {getCourseTitle(courseId, session)}\n")
-        updater.scanCoursesForUpdates(session, specificCourse=courseKey)
+        updater.scanCoursesForUpdates(session, courseId, specificCourse=courseKey)
 
 def duSpecific(session):
     with open('courses.json', 'r') as jf:
         courses = load(jf)
-        yearA = courses['year_a']
+    years = ["year_a", "year_b", "year_c", "year_d"]
     isCourse = False
-    while not isCourse:
-        courseChoice = input("Enter a valid course key: ")
-        for course in yearA:
-            if courseChoice.lower().strip() == course: 
-                isCourse = True
-                break
-    du(session, courseChoice, yearA[courseChoice])
+    for year in years:
+        while not isCourse:
+            courseChoice = input("Enter a valid course key: ")
+            for course in courses[year]:
+                if courseChoice.lower().strip() == course: 
+                    isCourse = True
+                    break
+        break
+    du(session, courseChoice, courses[year][courseChoice])
     print("-----------------------------------")
 
 def duAll(session):

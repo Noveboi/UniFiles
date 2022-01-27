@@ -8,7 +8,6 @@ c_path = False
 SYS = system()
 USER = getuser()
 
-
 # create default directories
 with open('config.json', 'r', encoding='utf8') as f:
     d = json.load(f)
@@ -18,12 +17,11 @@ with open('config.json', 'r', encoding='utf8') as f:
         else:
             local_dir = f"C:/Users/{USER}/Documents/uni_files"
     else:
-        # no path check since it's already done in __main__
         local_dir = d['custom_path']
         c_path = True
 
 def isFolder(file):
-    if '.' not in file[-8:len(file)]:
+    if '.' not in file[-8:len(file)] and 'http' not in file.strip()[0:4]:
         return True
     return False
 

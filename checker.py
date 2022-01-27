@@ -16,6 +16,8 @@ def needsDownload(courseKey, session):
     with open('courses.json', 'r') as jf:
         courses = load(jf)
     courseFolder = getCourseTitle(courses[findYear(courses,courseKey)][courseKey], session)
+    if '/' in courseFolder:
+        courseFolder = courseFolder.replace('/', '|')
     courseDir = path.join(local_dir, courseFolder)
     if path.exists(courseDir): return False
     return True

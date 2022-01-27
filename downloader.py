@@ -14,7 +14,10 @@ with open("courses.json", 'r') as jf:
     courses = load(jf)
 
 def downloadFile(file_path,file_name,courseId,session):
-    local_subdir = os.path.join(local_dir, f"{getCourseTitle(courseId, session)}")
+    name = getCourseTitle(courseId, session)
+    if '/' in name:
+        name = name.replace('/', '|')
+    local_subdir = os.path.join(local_dir, name)
     download_link = f"{home_dir}{file_path}" 
     try:
         d_r = session.get(download_link, verify=SSL_CERT)  # download request

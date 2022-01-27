@@ -1,10 +1,14 @@
 #This is the file the user will run, to download or update
 import requests
 import appFuncs
+from updater import determineAutoUpdate, autoEnabled
 
 if __name__ == "__main__":
+
     with requests.Session() as session:
         print("Hello! \n---------")
+        if autoEnabled: determineAutoUpdate()
+        
         while True:
             print("F - View available courses")
             print("D - Download or update specific course")
