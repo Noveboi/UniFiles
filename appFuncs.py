@@ -19,7 +19,7 @@ def duSpecific(session):
     isCourse = False
     for year in years:
         while not isCourse:
-            courseChoice = input("Enter a valid course key: ")
+            courseChoice = input("Enter a valid course key: ").lower().strip()
             for course in courses[year]:
                 if courseChoice.lower().strip() == course: 
                     isCourse = True

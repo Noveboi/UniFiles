@@ -18,15 +18,15 @@ def downloadFile(file_path,file_name,courseId,session):
     if '/' in name:
         name = name.replace('/', '|')
     local_subdir = os.path.join(local_dir, name)
-    download_link = f"{home_dir}{file_path}" 
+    download_url = f"{home_dir}{file_path}" 
     try:
-        d_r = session.get(download_link, verify=SSL_CERT)  # download request
+        d_r = session.get(download_url, verify=SSL_CERT)  # download request
 
         # store files in appropriate directory
-        modifyDirs(local_subdir, file_name, download_link, d_r)
+        modifyDirs(local_subdir, file_name, download_url, d_r)
 
         # extract files from every .zip and put them in folders
-        if isFolder(download_link):
+        if isFolder(download_url):
             unzipAndOrganize(file_name, local_subdir)
     except Exception as e2:
         print(f"download request went wrong: {e2}")

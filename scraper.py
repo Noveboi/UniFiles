@@ -39,10 +39,10 @@ def getCourseTitle(courseId, session):
 
     courseUrl = f"{docDir}{courseId}"
     r = session.get(courseUrl, verify="cert/gunet2-cs-unipi-gr-chain.pem")
-    with open("dump.html", 'w') as html:
+    with open("dump.html", 'w', encoding='utf8') as html:
         html.write(r.text)
     
-    with open("dump.html", 'r') as html:
+    with open("dump.html", 'r', encoding='utf8') as html:
         content = html.read()
         soup = BeautifulSoup(content, 'lxml')
         lesson_div = soup.find('div', class_="lesson")

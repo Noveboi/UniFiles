@@ -1,6 +1,8 @@
 import datetime
+from mimetypes import init
 import os
 import json
+from socket import timeout
 from downloader import SSL_CERT, documents_dir, courses, home_dir, downloadFile
 from scraper import getTableData
 from fileManager import isFolder
@@ -35,10 +37,11 @@ def updateDate(): #epic rhyme
         json.dump(data, jf)
 
 def iterateAndDownload(last_check, courseId, url, session):
+    print(f"url: {url}")
     print(f"\nSearching in {url}...")
 
-    r = session.get(url, verify=SSL_CERT)
-    with open("temp.html", 'w') as html:
+    r = session.get(url, verify=SSL_CERT, timeout=5)
+    with open("temp.html", 'w', encoding='utf8') as html:
         html.write(r.text)
 
     for data in getTableData("temp.html"): #iterate through each file in the table of contents 

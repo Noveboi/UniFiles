@@ -2,11 +2,14 @@
 import requests
 import appFuncs
 from updater import determineAutoUpdate, autoEnabled
+from fileManager import checkIfDirExists, local_dir
 
 if __name__ == "__main__":
 
     with requests.Session() as session:
         print("Hello! \n---------")
+
+        checkIfDirExists(local_dir)
         if autoEnabled: determineAutoUpdate(session)
         #program loop
         while True:

@@ -20,22 +20,22 @@ with open('config.json', 'r', encoding='utf8') as f:
         local_dir = d['custom_path']
         c_path = True
 
-def isFolder(file):
-    if '.' not in file[-8:len(file)] and 'http' not in file.strip()[0:4]:
+def isFolder(url):
+    if '.' not in url[-8:len(url)] or 'http' not in url.strip()[0:4]:
         return True
     return False
 
-def dlAndWriteToFile(file, download_url, rq, dir):
+def dlAndWriteToFile(file_name, download_url, rq, dir):
     if isFolder(download_url):
-        print(f"Downloading {file}.zip...")
-        with open(f"{dir}/{file}.zip", "wb") as f:
+        print(f"Downloading {file_name}.zip...")
+        with open(f"{dir}/{file_name}.zip", "wb") as f:
             f.write(rq.content)
-            print(f"{file}.zip downloaded\n")
+            print(f"{file_name}.zip downloaded\n")
     else:
-        print(f"Downloading {file}...")
-        with open(f"{dir}/{file}", "wb") as f:
+        print(f"Downloading {file_name}...")
+        with open(f"{dir}/{file_name}", "wb") as f:
             f.write(rq.content)
-            print(f"{file} downloaded\n")
+            print(f"{file_name} downloaded\n")
 
 def modifyDirs(local_subdir, file_name, target_url, rq):
     try:
@@ -61,6 +61,22 @@ def unzipAndOrganize(file_name, local_subdir):
     except Exception as e:
         print(f"unzipping process error: {e}")
 
+def checkIfDirExists(local_dir):
+    if not os.path.exists(local_dir):
+        usr_dir = input("Your current custom directory doesn't exist, please enter a valid one: ")
+        while True:
+            if os.path.exists(usr_dir):
+                c_dir = {"custom_path": usr_dir}
+                with open("config.json", 'r') as f:
+                    content = json.load(f)
+                content.update(c_dir)
+                with open("config.json", 'w') as jf:
+                    json.dump(content, jf)
+                break
+            else:
+                usr_dir = input("Please enter an existing path: ")
+        local_dir = os.path.join(usr_dir, 'uni_files')
+
 def defineDownloadPath(local_dir):
     if not c_path:
         usr_dir = input(
@@ -85,17 +101,5 @@ def defineDownloadPath(local_dir):
             return local_dir
         return local_dir
     else:
-        if not os.path.exists(local_dir):
-            usr_dir = input(
-                "Your current custom directory doesn't exist, please enter a valid one: ")
-            while True:
-                if os.path.exists(usr_dir):
-                    c_dir = {"custom_path": local_dir}
-                    json_obj = json.dumps(c_dir)
-                    with open("config.json", 'w', encoding='utf8') as f:
-                        f.write(json_obj)
-                    break
-                else:
-                    usr_dir = input("Please enter an existing path: ")
-            local_dir = os.path.join(usr_dir, 'uni_files')
+        checkIfDirExists(local_dir)
         return local_dir
