@@ -2,4 +2,4 @@
 *.html
 
 #ignore all pycache files
-__pycache__/*
+__pycache__/**
