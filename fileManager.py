@@ -21,8 +21,9 @@ with open('config.json', 'r', encoding='utf8') as f:
         c_path = True
 
 def isFolder(url):
-    if '.' not in url[-8:len(url)] or 'http' not in url.strip()[0:4]:
-        return True
+    if 'http' not in url.strip()[0:4]:
+        if '.' not in url[-8:len(url)]:
+            return True
     return False
 
 def dlAndWriteToFile(file_name, download_url, rq, dir):

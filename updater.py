@@ -37,7 +37,6 @@ def updateDate(): #epic rhyme
         json.dump(data, jf)
 
 def iterateAndDownload(last_check, courseId, url, session):
-    print(f"url: {url}")
     print(f"\nSearching in {url}...")
 
     r = session.get(url, verify=SSL_CERT, timeout=5)

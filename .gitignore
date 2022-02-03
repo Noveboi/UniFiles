@@ -1,0 +1,5 @@
+#ignore temp html files
+*.html
+
+#ignore all pycache files
+_pycache_/*
