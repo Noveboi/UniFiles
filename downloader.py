@@ -16,7 +16,7 @@ with open("courses.json", 'r') as jf:
 def downloadFile(file_path,file_name,courseId,session):
     name = getCourseTitle(courseId, session)
     if '/' in name:
-        name = name.replace('/', '|')
+        name = name.replace('/', '-')
     local_subdir = os.path.join(local_dir, name)
     download_url = f"{home_dir}{file_path}" 
     try:

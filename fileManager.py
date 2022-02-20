@@ -21,9 +21,7 @@ with open('config.json', 'r', encoding='utf8') as f:
         c_path = True
 
 def isFolder(url):
-    if 'http' not in url.strip()[0:4]:
-        if '.' not in url[-8:len(url)]:
-            return True
+    if '.' not in url[-8:]: return True
     return False
 
 def dlAndWriteToFile(file_name, download_url, rq, dir):
@@ -33,8 +31,10 @@ def dlAndWriteToFile(file_name, download_url, rq, dir):
             f.write(rq.content)
             print(f"{file_name}.zip downloaded\n")
     else:
+        file_extension = download_url[download_url.rindex('.') + 1:]
+        
         print(f"Downloading {file_name}...")
-        with open(f"{dir}/{file_name}", "wb") as f:
+        with open(f"{dir}/{file_name}.{file_extension}", "wb") as f:
             f.write(rq.content)
             print(f"{file_name} downloaded\n")
 

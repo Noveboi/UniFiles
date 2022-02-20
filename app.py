@@ -13,14 +13,13 @@ if __name__ == "__main__":
         if autoEnabled: determineAutoUpdate(session)
         #program loop
         while True:
-            print("F1-4 - View available for specific year (f without number for all years)")
+            print("F1-4 - View available courses for specific year (F without number for all years)")
             print("D - Download or update specific course")
             print("A - Download or update all courses of year(s)")
             print("E - Exit\n")
             choice = input()
             if choice.lower().strip()[0] == 'f':
-                if len(choice.strip()) > 1:
-                    if choice.strip()[1].isdigit():
+                if len(choice.strip()) > 1 and choice.strip()[1].isdigit():
                         if int(choice.strip()[1]) <= 4:
                             appFuncs.listCourses(session, year=int(choice.strip()[1]))
                 else:

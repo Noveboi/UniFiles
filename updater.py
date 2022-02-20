@@ -13,7 +13,7 @@ TIME_DISPLAY = '%Y-%m-%d %H:%M:%S'
 def autoEnabled():
     with open('config.json', 'r') as f:
         data = json.load(f)
-    if data['auto_update'] == 'no': return False
+    if data['auto_update'] == 'off': return False
     return True
 
 def getlastCheckDate():
@@ -38,19 +38,20 @@ def updateDate(): #epic rhyme
 
 def iterateAndDownload(last_check, courseId, url, session):
     print(f"\nSearching in {url}...")
+    try:
+        r = session.get(url, verify=SSL_CERT, timeout=5)
+        with open("temp.html", 'w', encoding='utf8') as html:
+            html.write(r.text)
 
-    r = session.get(url, verify=SSL_CERT, timeout=5)
-    with open("temp.html", 'w', encoding='utf8') as html:
-        html.write(r.text)
-
-    for data in getTableData("temp.html"): #iterate through each file in the table of contents 
-        if isFolder(data['dl']):
-            redir = f"{home_dir}{data['link']}"
-            iterateAndDownload(last_check, courseId, redir, session) #go one level deeper  
-        else:
-            if formatDate(data['date']) >= last_check:
+        for data in getTableData("temp.html"): #iterate through each file in the table of contents 
+            if isFolder(data['dl']):
+                redir = f"{home_dir}{data['link']}"
+                iterateAndDownload(last_check, courseId, redir, session) #go one level deeper  
+            else:
+                if formatDate(data['date']) >= last_check:
                     print(f"Update found for {data['file']}")
                     downloadFile(data['dl'], data['file'], courseId, session)
+    except Exception as e: print(f"Request timeout! \n-------\n{e}\n-------\n{url} likely is a link and not a file.")
 
 def scanCoursesForUpdates(session, courseId, specificCourse = None):
     last_check = getlastCheckDate()
@@ -74,8 +75,8 @@ def scanCoursesForUpdates(session, courseId, specificCourse = None):
         print(f"\n{cId} is now up-to-date!")
 
     print("Finished")
-    os.remove('temp.html')
-
+    if os.path.exists('temp.html'): os.remove('temp.html')
+   
 def determineAutoUpdate(session):
     lastCheck = getlastCheckDate()
     now = datetime.datetime.now()
