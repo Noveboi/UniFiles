@@ -84,4 +84,3 @@ def determineAutoUpdate(session):
     if time_passed >= 1:
         print(f"Some time has passed since the last update, auto-updating now!")
         scanCoursesForUpdates(session, '')
-    else: print(time_passed)
